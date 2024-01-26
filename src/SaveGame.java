@@ -1,27 +1,22 @@
-import com.sun.jdi.Value;
-
 import java.io.*;
-import java.util.HashSet;
 import java.util.*;
-import java.util.Scanner;
-import java.util.Set;
-
 
 public class SaveGame {
     private File save;
-    private Set<String> countries;
-
+    private int year;
     private Map<String, Country> countryMap = new HashMap<>();;
     private int bracketCount = 0;
-
     private boolean isProcessingProvince;
+    private boolean dateSet = false;
+    private String date;
+    private boolean isOnEndingBracket;
 
     /**
      * Constructs the save game using the file location
-     * @param save
+     * @param saveFile - File to be parsed
      */
-    public SaveGame(String save) {
-        this.save = new File(save);
+    public SaveGame(File saveFile) {
+        this.save = saveFile;
     }
 
     /**
@@ -31,7 +26,6 @@ public class SaveGame {
      * @throws IOException
      */
     public Map<String, Country> countCountries() throws IOException {
-        Scanner fileReader = new Scanner(save);
         InputStreamReader reader = new InputStreamReader(new FileInputStream(save)); // This encoding seems to work for ö
         BufferedReader scanner = new BufferedReader(reader);
         String line;
@@ -41,6 +35,11 @@ public class SaveGame {
         while ((line = scanner.readLine()) != null) {
             line = line.replaceAll("\t", "");
 //            System.out.println(line);
+            if (!dateSet) {
+                date = extractName(line, 6, true);
+                this.year = Integer.parseInt(date.substring(0, 4));
+                dateSet = true;
+            }
 
             if (line.contains("owner=\"")) {
                 currentOwner = extractName(line, 7, true);
@@ -52,6 +51,8 @@ public class SaveGame {
                 isProcessingProvince = true;
             }
 
+//            if (isOnEndingBracket && line.contains())
+
             if (isProcessingProvince && bracketCount != 0) {
                 countBrackets(line);
                 provinceSize(line, currentOwner);
@@ -61,6 +62,17 @@ public class SaveGame {
         scanner.close();
         this.countryMap = countryMap;
         return countryMap;
+    }
+
+    /**
+     * Removes the last value in a given String by reducing the length by 1
+     * @param line - Line being edited
+     * @return Edited String value
+     */
+    public String removeLast(String line) {
+        StringBuilder sb = new StringBuilder(line);
+        sb.setLength(sb.length() - 1);
+        return sb.toString();
     }
 
     /**
@@ -80,84 +92,65 @@ public class SaveGame {
         return sb.toString();
     }
 
+    /**
+     * Returns how many people of any group are in a certain province
+     * @param line - line that is currently being parsed
+     * @param owner - key of a country object whose total will be added to
+     */
     public void provinceSize(String line, String owner) {
-        // beingin this method means we already know the bracket count is 1
+        // being this method means we already know the bracket count is 1
         if (line.startsWith("size=")) {
             String size = extractName(line, 5, false);
             countryMap.get(owner).addPopCount(Integer.parseInt(size));
         }
     }
 
-    public Map<String, Country> printEach() {
-        Scanner console = new Scanner(System.in);
-        System.out.println("Input a list of countries");
-        String line = console.nextLine();
-        Map<String, Country> getCountryMap = new HashMap<>();
-
-        Scanner lineScanner = new Scanner(line);
-        String tag = null;
-        while (lineScanner.hasNext()) {
-            tag = lineScanner.next();
-            getCountryMap.put(tag, countryMap.get(tag));
-            // here new map made with specific tags and country objects from the OG one
-        }
-        return getCountryMap;
-    }
-
+    /**
+     * Keeps track of the global bracket count, updating fields in the class
+     * @param line - Line currently being parsed
+     */
     public void countBrackets(String line) {
         if (line.contains("{")) {
             bracketCount++;
+            isOnEndingBracket = false;
         } else if (line.contains("}")) {
             bracketCount--;
+            isOnEndingBracket = true;
         }
     }
 
 
     /**
-     * Iterates through a set containing the tags and objects of countries,
-     * printing them out in a formatted manner
+     * Returns a String of the date of the save
+     * @return String that represents the saves date
      */
-    public void visualizeData() {
-        int count = 1;
-        for (Map.Entry<String, Country> entry : countryMap.entrySet()) {
-            String key = entry.getKey();
-            Country country = entry.getValue();
-            System.out.printf("%d\t: %s, %,d\n", count++, key, country.getPopulationSizeInt());
-        }
+    public String getDate() {
+        return date;
     }
 
-    public void printCSV(Map<String, Country> specificCountries) {
-        String eol = System.getProperty("line.separator");
-
-        try (Writer writer = new FileWriter("somefile.csv")) {
-            for (Map.Entry<String, Country> entry : specificCountries.entrySet()) {
-                writer.append(entry.getKey())
-                        .append(',')
-                        .append(entry.getValue().getPopulationSize())
-                        .append(eol);
-            }
-        } catch (IOException ex) {
-            ex.printStackTrace(System.err);
-        }
-
+    /**
+     * Returns a country from a Map<String, Country> given a String which
+     * is the key to the value
+     * @param tag - Tag used as the key in the map
+     * @return the Country value associated with the tag key
+     */
+    public Country getCountry(String tag) {
+        return countryMap.get(tag);
     }
 
-    public void printCSV() {
-        String eol = System.getProperty("line.separator");
-
-        try (Writer writer = new FileWriter("somefile.csv")) {
-            for (Map.Entry<String, Country> entry : countryMap.entrySet()) {
-                writer.append(entry.getKey())
-                        .append(',')
-                        .append(entry.getValue().getPopulationSize())
-                        .append(eol);
-            }
-        } catch (IOException ex) {
-            ex.printStackTrace(System.err);
-        }
-
+    /**
+     * Gets the map that holds all tags and countries in a savegame
+     * @return the map that holds all tags and countries
+     */
+    public Map<String, Country> getCountryMap() {
+        return countryMap;
     }
 
-
-
+    /**
+     * Accesses the year of the save game, represented bv an int
+     * @return int that represents the year of the save game
+     */
+    public int getYear() {
+        return year;
+    }
 }
