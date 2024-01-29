@@ -1,15 +1,22 @@
 import java.io.*;
+import java.nio.file.Files;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class SaveGame {
-    private File save;
+    private final File save;
     private int year;
-    private Map<String, Country> countryMap = new HashMap<>();;
+    private int month;
+    private int day;
+    private int[] dateArray = new int[3];
+    private Map<String, Country> countryMap = new TreeMap<>();
+
     private int bracketCount = 0;
     private boolean isProcessingProvince;
     private boolean dateSet = false;
     private String date;
-    private boolean isOnEndingBracket;
+    private Pattern pattern = Pattern.compile("\t");
+    private static final String regex = "\\b[A-Z]{3}=";
 
     /**
      * Constructs the save game using the file location
@@ -26,24 +33,25 @@ public class SaveGame {
      * @throws IOException
      */
     public Map<String, Country> countCountries() throws IOException {
-        InputStreamReader reader = new InputStreamReader(new FileInputStream(save)); // This encoding seems to work for ö
-        BufferedReader scanner = new BufferedReader(reader);
+        BufferedReader scanner = new BufferedReader(new InputStreamReader(Files.newInputStream(save.toPath())));
         String line;
         String currentOwner = null;
-
+        boolean gettingAccepted = false;
         int countryCount = 0;
+        int lastSizeRecorded = 0;
         while ((line = scanner.readLine()) != null) {
-            line = line.replaceAll("\t", "");
-//            System.out.println(line);
+            line = pattern.matcher(line).replaceAll("");
             if (!dateSet) {
                 date = extractName(line, 6, true);
-                this.year = Integer.parseInt(date.substring(0, 4));
+                System.out.println(date);
+                setDateArray();
                 dateSet = true;
             }
-
             if (line.contains("owner=\"")) {
                 currentOwner = extractName(line, 7, true);
                 if (!countryMap.containsKey(currentOwner)) {
+                    // if country map doesn't already have the country, add it from
+                    // country already created in acceptedDatabase
                     Country country = new Country(currentOwner);
                     this.countryMap.put(currentOwner, country);
                 }
@@ -51,17 +59,84 @@ public class SaveGame {
                 isProcessingProvince = true;
             }
 
-//            if (isOnEndingBracket && line.contains())
-
+            if (gettingAccepted) {
+                // happens on next line, so now on "yankee=protestant"
+                String[] parts = line.split("=");
+                //splits along regex
+                //checks if accepted pop list of country has this accepted
+                // MAYBE CHANGE BACK TO ACCEPTED
+                if (countryMap.get(currentOwner).getAcceptedPopList().contains(parts[0])) {
+                    countryMap.get(currentOwner).addAcceptedPopTotal(lastSizeRecorded);
+                }
+            }
             if (isProcessingProvince && bracketCount != 0) {
                 countBrackets(line);
-                provinceSize(line, currentOwner);
+                lastSizeRecorded = provinceSize(line, currentOwner);
+                gettingAccepted = true;
             }
         }
-//        System.out.println("bracketCount = " + bracketCount);
         scanner.close();
-        this.countryMap = countryMap;
         return countryMap;
+    }
+
+    public void countAccepted() throws IOException {
+        InputStreamReader reader = new InputStreamReader(Files.newInputStream(save.toPath()));
+        BufferedReader scanner = new BufferedReader(reader);
+        String line = null;
+        bracketCount = 0;
+        String currentOwner = null;
+        boolean findTagOnce = true;
+        boolean tagFound = false;
+        boolean insideTagData = false;
+        boolean cultureReading = false;
+        int bracketPositionSave = 0;
+
+        while ((line = scanner.readLine()) != null) {
+            line = line.replaceAll("\t", "");
+            if (line.matches(regex) && !countryMap.containsKey(extractName(line, 0, true))) {
+                String tagName = extractName(line, 0, true);
+                Country country = new Country(tagName);
+                this.countryMap.put(tagName, country);
+            }
+            if (insideTagData && bracketCount != 0) {
+                countBrackets(line);
+                if (line.contains("primary_culture=\"")) {
+                    String culture = extractName(line, 17, true);
+                    countryMap.get(currentOwner).addAcceptedPopType(culture);
+                    bracketPositionSave = bracketCount;
+                }
+                if (cultureReading) {
+                    if (bracketCount == bracketPositionSave) {
+                        cultureReading = false;
+                    } else if (line.startsWith("\"")){
+                        String culture = extractName(line, 1, true);
+                        countryMap.get(currentOwner).addAcceptedPopType(culture);
+                    }
+                }
+
+                if (line.startsWith("culture=")) {
+                    cultureReading = true;
+                }
+            }
+
+            if (line.contains("human") || line.contains("tax_base")) {
+                insideTagData = true;
+                bracketCount = 1;
+            }
+
+            if(tagFound && findTagOnce) {
+                bracketCount = 1;
+                findTagOnce = false;
+            }
+
+            if (line.length() > 3) {
+                if (countryMap.containsKey(extractName(line, 0, true)) && (bracketCount == 0)) {
+                    tagFound = true;
+                    currentOwner = line.substring(0, 3);
+                }
+            }
+        }
+        scanner.close();
     }
 
     /**
@@ -97,12 +172,15 @@ public class SaveGame {
      * @param line - line that is currently being parsed
      * @param owner - key of a country object whose total will be added to
      */
-    public void provinceSize(String line, String owner) {
+    public int provinceSize(String line, String owner) {
         // being this method means we already know the bracket count is 1
+        int sizeInt = 0;
         if (line.startsWith("size=")) {
             String size = extractName(line, 5, false);
-            countryMap.get(owner).addPopCount(Integer.parseInt(size));
+            sizeInt = Integer.parseInt(size);
+            countryMap.get(owner).addPopCount(sizeInt);
         }
+        return sizeInt;
     }
 
     /**
@@ -112,10 +190,9 @@ public class SaveGame {
     public void countBrackets(String line) {
         if (line.contains("{")) {
             bracketCount++;
-            isOnEndingBracket = false;
-        } else if (line.contains("}")) {
+        }
+        if (line.contains("}")) {
             bracketCount--;
-            isOnEndingBracket = true;
         }
     }
 
@@ -138,19 +215,33 @@ public class SaveGame {
         return countryMap.get(tag);
     }
 
-    /**
-     * Gets the map that holds all tags and countries in a savegame
-     * @return the map that holds all tags and countries
-     */
-    public Map<String, Country> getCountryMap() {
-        return countryMap;
-    }
-
-    /**
-     * Accesses the year of the save game, represented bv an int
-     * @return int that represents the year of the save game
-     */
     public int getYear() {
         return year;
     }
+
+    public int getMonth() {
+        return month;
+    }
+
+    public int getDay() {
+        return day;
+    }
+
+    /**
+     * Sets date array based on the date sepearated by "."
+     */
+    public void setDateArray() {
+        String[] stringDateArray = date.split("\\.");
+        for (int i = 0; i <= 2; i++) {
+            dateArray[i] = Integer.parseInt(stringDateArray[i]);
+        }
+        this.year = dateArray[0];
+        this.month = dateArray[1];
+        this.day = dateArray[2];
+    }
+
+    public int[] getDateNum() {
+        return dateArray;
+    }
+
 }

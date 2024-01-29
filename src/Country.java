@@ -12,10 +12,6 @@ public class Country {
         this.countryName = name;
     }
 
-    public String toString() {
-        return(countryName);
-    }
-
     /**
      * Increases the total of the countries pop count given an int
      * @param size - size for the pop count to be increased by
@@ -24,11 +20,44 @@ public class Country {
         populationSize += size;
     }
 
+    /**
+     * Returns a list of accepted pops to be used to determine whether to
+     * add a pop group to a total or not
+     * @return list of all accepted pops of a country
+     */
+    public List<String> getAcceptedPopList() {
+        return acceptedPopList;
+    }
+
+    /**
+     * Adds accepted pop count to a countries total accepted pop number
+     * @param populationSize - how much is being added
+     */
+    public void addAcceptedPopTotal(int populationSize) {
+        this.acceptedPopTotal += populationSize;
+    }
+
+    /**
+     * Adds accepted pop culture to a countries accepted pop
+     * @param culture - culture to be added
+     */
+    public void addAcceptedPopType(String culture) {
+        acceptedPopList.add(culture);
+    }
+
+    /**
+     * Gets int for total of pop size
+     * @return int for total of pop size
+     */
     public int getPopulationSizeNumber() {
         return populationSize;
     }
-    public String getPopulationSizeString() {
-        return String.valueOf(populationSize);
-    }
 
+    /**
+     * Gets int for total of accepted pop
+     * @return int for total of accepted pop
+     */
+    public int getAcceptedPopTotal() {
+        return acceptedPopTotal;
+    }
 }
