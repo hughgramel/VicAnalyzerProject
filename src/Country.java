@@ -3,6 +3,7 @@ import java.util.List;
 
 public class Country {
     private String countryName;
+    private boolean isHuman;
     private int populationSize = 0;
 
     private List<String> acceptedPopList = new ArrayList<>();
@@ -10,6 +11,10 @@ public class Country {
 
     public Country(String name) {
         this.countryName = name;
+    }
+
+    public void setIsHuman() {
+        this.isHuman = true;
     }
 
     /**

@@ -8,14 +8,15 @@ public class SaveGame {
     private int year;
     private int month;
     private int day;
-    private int[] dateArray = new int[3];
-    private Map<String, Country> countryMap = new TreeMap<>();
+    private final int[] dateArray = new int[3];
+    private final Map<String, Country> countryMap = new TreeMap<>();
 
     private int bracketCount = 0;
     private boolean isProcessingProvince;
     private boolean dateSet = false;
+    public Set<String> humanSet = new TreeSet<>();
     private String date;
-    private Pattern pattern = Pattern.compile("\t");
+    private final Pattern pattern = Pattern.compile("\t");
     private static final String regex = "\\b[A-Z]{3}=";
 
     /**
@@ -30,14 +31,13 @@ public class SaveGame {
      * Counts the total number of countries in a save game using their unique tags.
      * Only takes into account countries that are on the map and own provinces
      * @return map that contains all country tags
-     * @throws IOException
+     * @throws IOException - if no input
      */
     public Map<String, Country> countCountries() throws IOException {
         BufferedReader scanner = new BufferedReader(new InputStreamReader(Files.newInputStream(save.toPath())));
         String line;
         String currentOwner = null;
         boolean gettingAccepted = false;
-        int countryCount = 0;
         int lastSizeRecorded = 0;
         while ((line = scanner.readLine()) != null) {
             line = pattern.matcher(line).replaceAll("");
@@ -76,13 +76,13 @@ public class SaveGame {
             }
         }
         scanner.close();
-        return countryMap;
+        return this.countryMap;
     }
 
     public void countAccepted() throws IOException {
         InputStreamReader reader = new InputStreamReader(Files.newInputStream(save.toPath()));
         BufferedReader scanner = new BufferedReader(reader);
-        String line = null;
+        String line;
         bracketCount = 0;
         String currentOwner = null;
         boolean findTagOnce = true;
@@ -92,7 +92,8 @@ public class SaveGame {
         int bracketPositionSave = 0;
 
         while ((line = scanner.readLine()) != null) {
-            line = line.replaceAll("\t", "");
+//            line = line.replaceAll("\t", "");
+            line = pattern.matcher(line).replaceAll("");
             if (line.matches(regex) && !countryMap.containsKey(extractName(line, 0, true))) {
                 String tagName = extractName(line, 0, true);
                 Country country = new Country(tagName);
@@ -119,9 +120,13 @@ public class SaveGame {
                 }
             }
 
-            if (line.contains("human") || line.contains("tax_base")) {
+            if (line.contains("human") || line.contains("tax_base") && (!line.contains("tax_base=0.0"))) {
                 insideTagData = true;
                 bracketCount = 1;
+                if (line.contains("human")) {
+                    countryMap.get(currentOwner).setIsHuman();
+                    humanSet.add(currentOwner);
+                }
             }
 
             if(tagFound && findTagOnce) {
@@ -140,23 +145,12 @@ public class SaveGame {
     }
 
     /**
-     * Removes the last value in a given String by reducing the length by 1
-     * @param line - Line being edited
-     * @return Edited String value
-     */
-    public String removeLast(String line) {
-        StringBuilder sb = new StringBuilder(line);
-        sb.setLength(sb.length() - 1);
-        return sb.toString();
-    }
-
-    /**
      * Extracts text data depending on which word to be removed, the index of where is to be removed,
      * and if the last value is to be removed
      * @param line - represents the line the inputStreamReader is on, the one to be removed
-     * @param index
-     * @param removeLast
-     * @return
+     * @param index - index of how many characters to remove
+     * @param removeLast - set to true if wanting to remove last value in a char
+     * @return the extracted string
      */
     public String extractName(String line, int index, boolean removeLast) {
         StringBuilder sb = new StringBuilder(line);
@@ -240,8 +234,7 @@ public class SaveGame {
         this.day = dateArray[2];
     }
 
-    public int[] getDateNum() {
-        return dateArray;
+    public Set<String> getHumanSet() {
+        return humanSet;
     }
-
 }
