@@ -24,7 +24,21 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/acceptedTotals.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/accepteds.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/totalPopTotals.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

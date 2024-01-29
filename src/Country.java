@@ -1,6 +1,10 @@
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents one country in a save game, identified by its tag, and containing
+ * data regarding its size, accepted cultures, accepted culture size, and whether it's a human or not.
+ */
 public class Country {
     private String countryName;
     private boolean isHuman;

@@ -3,6 +3,10 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.regex.Pattern;
 
+/**
+ * Represents the data of one save game, and all of its corresponding countries with
+ * their population count
+ */
 public class SaveGame {
     private final File save;
     private int year;
@@ -79,6 +83,11 @@ public class SaveGame {
         return this.countryMap;
     }
 
+    /**
+     * Registers the accepted cultures of each country in a given save game,
+     * creating a country if it doesn't exist yet
+     * @throws IOException if an I/O exception of some sort has occurred
+     */
     public void countAccepted() throws IOException {
         InputStreamReader reader = new InputStreamReader(Files.newInputStream(save.toPath()));
         BufferedReader scanner = new BufferedReader(reader);
@@ -92,7 +101,6 @@ public class SaveGame {
         int bracketPositionSave = 0;
 
         while ((line = scanner.readLine()) != null) {
-//            line = line.replaceAll("\t", "");
             line = pattern.matcher(line).replaceAll("");
             if (line.matches(regex) && !countryMap.containsKey(extractName(line, 0, true))) {
                 String tagName = extractName(line, 0, true);
@@ -120,7 +128,7 @@ public class SaveGame {
                 }
             }
 
-            if (line.contains("human") || line.contains("tax_base") && (!line.contains("tax_base=0.0"))) {
+            if (line.contains("human") || line.contains("tax_base")) {
                 insideTagData = true;
                 bracketCount = 1;
                 if (line.contains("human")) {
@@ -190,21 +198,23 @@ public class SaveGame {
         }
     }
 
-
     /**
-     * Returns a String of the date of the save
-     * @return String that represents the saves date
+     * Sets date array based on the date separated by "."
      */
+    public void setDateArray() {
+        String[] stringDateArray = date.split("\\.");
+        for (int i = 0; i <= 2; i++) {
+            dateArray[i] = Integer.parseInt(stringDateArray[i]);
+        }
+        this.year = dateArray[0];
+        this.month = dateArray[1];
+        this.day = dateArray[2];
+    }
+
     public String getDate() {
         return date;
     }
 
-    /**
-     * Returns a country from a Map<String, Country> given a String which
-     * is the key to the value
-     * @param tag - Tag used as the key in the map
-     * @return the Country value associated with the tag key
-     */
     public Country getCountry(String tag) {
         return countryMap.get(tag);
     }
@@ -219,19 +229,6 @@ public class SaveGame {
 
     public int getDay() {
         return day;
-    }
-
-    /**
-     * Sets date array based on the date sepearated by "."
-     */
-    public void setDateArray() {
-        String[] stringDateArray = date.split("\\.");
-        for (int i = 0; i <= 2; i++) {
-            dateArray[i] = Integer.parseInt(stringDateArray[i]);
-        }
-        this.year = dateArray[0];
-        this.month = dateArray[1];
-        this.day = dateArray[2];
     }
 
     public Set<String> getHumanSet() {

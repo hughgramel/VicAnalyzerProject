@@ -1,5 +1,5 @@
 /**
- * Used to compare save games using their year
+ * Used to compare save games using their date
  */
 class SaveComparator implements java.util.Comparator<SaveGame> {
     @Override

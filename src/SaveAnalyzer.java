@@ -52,6 +52,7 @@ public class SaveAnalyzer {
     }
 
     public void readFiles() throws IOException {
+        System.out.println("Reading files");
         for (File eachFile : fileArray) {
             if (!eachFile.getName().endsWith(".DS_Store")) {
                 SaveGame save = new SaveGame(eachFile);
