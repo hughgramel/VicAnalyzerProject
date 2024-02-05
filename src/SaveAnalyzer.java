@@ -14,10 +14,18 @@ public class SaveAnalyzer {
     private static final char[] ILLEGAL_CHARACTERS = { '/', '\n', '\r', '\t',
             '\0', '\f', '`', '?', '*', '\\', '<', '>', '|', '\"', ':' };
 
+    /**
+     * Method constructor
+     */
     public SaveAnalyzer() {
 
     }
 
+    /**
+     * Gets files from user input using the console, and reports if it exists
+     * or not. If the file is a directory, then will be list files, otherwise
+     * will be an array that contains only the inidividual file
+     */
     public void getFiles() {
         System.out.println("Enter the directory or file containing the Vic 2 Save Games: ");
         File mainFile = new File(console.nextLine());
@@ -33,7 +41,11 @@ public class SaveAnalyzer {
         }
     }
 
-
+    /**
+     * Gets a valid file name from user input, excluding characters that won't work
+     * when creating a new file
+     * @return String representing the valid file name
+     */
     public String getValidFileName() {
         String fileName = console.nextLine();
         while (checkIfContains(fileName, ILLEGAL_CHARACTERS)) {
@@ -43,6 +55,12 @@ public class SaveAnalyzer {
         return fileName;
     }
 
+    /**
+     * Checks if a given String contains any of a given set of characters.
+     * @param toCheck - String to be parsed for the characters searched for
+     * @param chars - Array that contains the chars to look for
+     * @return true if the String contains any of the given characters
+     */
     public boolean checkIfContains(String toCheck, char[] chars) {
         for (char eachChar : chars)
             if (toCheck.contains(String.valueOf(eachChar))) {
@@ -51,6 +69,13 @@ public class SaveAnalyzer {
         return false;
     }
 
+    /**
+     * Method that reads each of the save game files, and registers which 
+     * countries are analyzed and saved, along with which countries are 
+     * human / real players. Additionally prints what stages the process is
+     * at. 
+     * @throws IOException - if I/O operation failed / interrupted
+     */
     public void readFiles() throws IOException {
         System.out.println("Reading files");
         for (File eachFile : fileArray) {
@@ -71,6 +96,11 @@ public class SaveAnalyzer {
         saveGameArrayList.sort(new SaveComparator());
     }
 
+    /**
+     * Determines what file output the user would like for their CSV file.
+     * Takes user input on whether the outputted CSV file should represent 
+     * a certain subset of countries, all countries, or only player countries. 
+     */
     public void setInputtingSpecificCountries() {
         System.out.println("Press 1 to output all countries");
         System.out.println("Press 2 to specify countries (may not be found if tag changes)");
@@ -90,6 +120,12 @@ public class SaveAnalyzer {
         }
     }
 
+    /**
+     * Receives user input on which specific countries should be ouputted. 
+     * Receives the tags of countries from the user, and reasks the user
+     * if any of the tokens don't match a given tag. 
+     * @return String[] array that represented each tag to be used by the user
+     */
     public String[] getCountriesToInput() {
         System.out.println("Input a list of countries (by tag, separated by space)");
         String line = (console.nextLine()).toUpperCase();
@@ -103,6 +139,17 @@ public class SaveAnalyzer {
         return tagArray;
     }
 
+    /**
+     * Prints a representation of the data given in each save to a CSV file, 
+     * one with the accepted population of a given set of countries and one 
+     * with the total population of each one in each save, 
+     * @param saves - Set of SaveGames that the data is parsed from
+     * @param tagSet - Set of the specified tags to have data reported from
+     * @param fileName - Name of the CSV file to be outputted
+     * @param isAccepted - Boolean that determines if the outputted data is
+     *                     meant to be the countries "accepted" population\
+     *                     or standart population
+     */
     public static void eachSavePrintCSV(List<SaveGame> saves, Set<String> tagSet, String fileName, boolean isAccepted) {
         String eol = System.lineSeparator();
         boolean tagHasPops = false;
@@ -150,6 +197,10 @@ public class SaveAnalyzer {
         }
     }
 
+    /**
+     * Method that retrieves the users input to determine the names of the 
+     * outputted CSV files, and calls the method to output them
+     */
     public void printFiles() {
         System.out.println("Accepted pop file name: ");
         String acceptedFileName = getValidFileName();
