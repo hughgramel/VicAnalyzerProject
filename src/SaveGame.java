@@ -47,7 +47,6 @@ public class SaveGame {
             line = pattern.matcher(line).replaceAll("");
             if (!dateSet) {
                 date = extractName(line, 6, true);
-                System.out.println(date);
                 setDateArray();
                 dateSet = true;
             }

@@ -24,14 +24,25 @@ public class SaveAnalyzer {
     /**
      * Gets files from user input using the console, and reports if it exists
      * or not. If the file is a directory, then will be list files, otherwise
-     * will be an array that contains only the inidividual file
+     * will be an array that contains only the individual file
      */
     public void getFiles() {
-        System.out.println("Enter the directory or file containing the Vic 2 Save Games: ");
-        File mainFile = new File(console.nextLine());
+        System.out.println("Enter the path to the file or folder containing the Vic 2 Save Games: ");
+        System.out.println("(For windows, navigate to file/folder, hold Shift and right-click the file or folder, and select \"Copy as Path\" from the context menu.)");
+        System.out.println();
+        System.out.println("Type \"end\" to exit");
+        String input = console.nextLine();
+        if (input.equals("end")) {
+            System.exit(0);
+        }
+        File mainFile = new File(input);
         while (!mainFile.exists()) {
             System.out.println("That file doesn't exist. Input again");
-            mainFile = new File(console.nextLine());
+            input = console.nextLine();
+            mainFile = new File(input);
+            if (input.equals("end")) {
+                System.exit(0);
+            }
         }
         if (mainFile.isDirectory()) {
             this.fileArray = mainFile.listFiles();
@@ -78,20 +89,23 @@ public class SaveAnalyzer {
      */
     public void readFiles() throws IOException {
         System.out.println("Reading files");
+        int num = fileArray.length;
+        int total = num;
         for (File eachFile : fileArray) {
+            Long time = System.currentTimeMillis();
+            System.out.println((int)(((double) (total - num) / (total)) * 100) + "% completed");
+            num--;
             if (!eachFile.getName().endsWith(".DS_Store")) {
                 SaveGame save = new SaveGame(eachFile);
-                System.out.println("Adding accepted cultures...");
                 save.countAccepted();
-                System.out.println("Counting total pops...");
                 Map<String, Country> allCountries = save.countCountries();
                 // adds all keys to be able to track which ones are available in the future
                 Set<String> keySet = allCountries.keySet();
                 allTotalTags.addAll(keySet);
                 allHumanTags.addAll(save.getHumanSet());
-                System.out.println("Registering save game...");
                 this.saveGameArrayList.add(save);
             }
+            System.out.println(System.currentTimeMillis() - time);
         }
         saveGameArrayList.sort(new SaveComparator());
     }

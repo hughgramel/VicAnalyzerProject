@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -10,7 +11,7 @@ public class Country {
     private boolean isHuman;
     private int populationSize = 0;
 
-    private List<String> acceptedPopList = new ArrayList<>();
+    private HashSet<String> acceptedPopList = new HashSet();
     private int acceptedPopTotal = 0;
 
     public Country(String name) {
@@ -34,7 +35,7 @@ public class Country {
      * add a pop group to a total or not
      * @return list of all accepted pops of a country
      */
-    public List<String> getAcceptedPopList() {
+    public HashSet<String> getAcceptedPopList() {
         return acceptedPopList;
     }
 
