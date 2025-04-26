@@ -68,8 +68,7 @@ public class MainGUI extends JFrame {
         mainPanel.add(Box.createVerticalStrut(30));
 
         // File name panel with modern styling
-        JPanel fileNamePanel = new JPanel(new GridLayout(2, 2, 15, 15));
-        fileNamePanel.setMaximumSize(new Dimension(450, 80));
+        JPanel fileNamePanel = new JPanel(new GridBagLayout());
         fileNamePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
         fileNamePanel.setBackground(new Color(245, 245, 245));
         fileNamePanel.setBorder(new CompoundBorder(
@@ -77,20 +76,42 @@ public class MainGUI extends JFrame {
             BorderFactory.createEmptyBorder(15, 15, 15, 15)
         ));
 
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(5, 5, 5, 5);
+
         JLabel acceptedLabel = new JLabel("Accepted pops file name:");
         acceptedLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         acceptedFileField = new JTextField("accepted_pops");
         acceptedFileField.putClientProperty(FlatClientProperties.STYLE, "arc: 8");
+        acceptedFileField.setMinimumSize(new Dimension(400, 30));
         
         JLabel totalLabel = new JLabel("Total pops file name:");
         totalLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         totalFileField = new JTextField("total_pops");
         totalFileField.putClientProperty(FlatClientProperties.STYLE, "arc: 8");
+        totalFileField.setMinimumSize(new Dimension(400, 30));
 
-        fileNamePanel.add(acceptedLabel);
-        fileNamePanel.add(acceptedFileField);
-        fileNamePanel.add(totalLabel);
-        fileNamePanel.add(totalFileField);
+        // Add components with GridBagLayout
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 0.3;
+        fileNamePanel.add(acceptedLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.weightx = 0.7;
+        fileNamePanel.add(acceptedFileField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.weightx = 0.3;
+        fileNamePanel.add(totalLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.weightx = 0.7;
+        fileNamePanel.add(totalFileField, gbc);
+
+        fileNamePanel.setMaximumSize(new Dimension(550, 100));
 
         mainPanel.add(fileNamePanel);
         mainPanel.add(Box.createVerticalStrut(30));
