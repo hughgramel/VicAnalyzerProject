@@ -35,6 +35,8 @@ The analysis will create two CSV files in the same folder where the JAR file is 
 
 For example, if your JAR file is in `C:\Games\Victoria2\Analyzer`, the output files will also be created in `C:\Games\Victoria2\Analyzer`.
 
+NOTE: In the .csv files if a nation changes tag the data will be on separate rows; e.g. Prussia (PRU), North German Confederation (NGF), and Germany (GER) will all be on different rows and you'll have to merge them.
+
 ## Security
 
 This application is distributed as a signed JAR file with SHA-256 checksums for verification. Always download from the official [Releases Page](https://github.com/yourusername/VicAnalyzerProject/releases/latest) and verify the signature and checksum if possible!
