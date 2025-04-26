@@ -1,7 +1,7 @@
 # Victoria 2 Save Game Analyzer
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Release](https://img.shields.io/github/v/release/yourusername/VicAnalyzerProject)](https://github.com/yourusername/VicAnalyzerProject/releases/latest)
+[![Release](https://img.shields.io/github/v/release/yourusername/VicAnalyzerProject)](https://github.com/yourusername/VicAnalyzerProject/releases/latest).
 
 ## Requirements
 
