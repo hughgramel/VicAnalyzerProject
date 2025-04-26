@@ -1,3 +1,7 @@
+package com.vicanalyzer;
+
+import java.util.Comparator;
+
 /**
  * Used to compare save games using their date
  */

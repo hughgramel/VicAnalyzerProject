@@ -1,3 +1,5 @@
+package com.vicanalyzer;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.util.*;
