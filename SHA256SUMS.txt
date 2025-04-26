@@ -1,0 +1,1 @@
+547116eba7a93c6821ca918e0edf3d1af8838ee134e766828a0c38727de0522e  target/vic-analyzer-1.0-SNAPSHOT-jar-with-dependencies.jar
