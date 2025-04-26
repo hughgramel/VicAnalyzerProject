@@ -8,6 +8,7 @@
 - **Java**: Java 17 or higher is required (install guide below)
   - Windows: Download and install from [Oracle's website](https://www.oracle.com/java/technologies/downloads/#java17) or [OpenJDK](https://adoptium.net/)
 
+
 ## Quick Start
 
 1. **Download**: Get the latest `vic-analyzer-1.0-SNAPSHOT-jar-with-dependencies.jar` from our [Releases Page](https://github.com/yourusername/VicAnalyzerProject/releases/latest)
@@ -36,6 +37,4 @@ For example, if your JAR file is in `C:\Games\Victoria2\Analyzer`, the output fi
 
 ## Security
 
-This application is distributed as a signed JAR file with SHA-256 checksums for verification. Always download from the official [Releases Page](https://github.com/yourusername/VicAnalyzerProject/releases/latest) and verify the signature and checksum if possible.
-
-
+This application is distributed as a signed JAR file with SHA-256 checksums for verification. Always download from the official [Releases Page](https://github.com/yourusername/VicAnalyzerProject/releases/latest) and verify the signature and checksum if possible!
